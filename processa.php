@@ -2,7 +2,7 @@
 
 function atualizar_paths($pagina){
 
-    $url_host = filter_input(INPUT_SERVER, 'HTTP_HOST');
+     $url_host = filter_input(INPUT_SERVER, 'HTTP_HOST');
     define('pg', 'http://'.$url_host.'/RelativoToAbsolutePath');
 
 
@@ -11,24 +11,42 @@ function atualizar_paths($pagina){
     $doc = new DOMDocument('1.0');
     $doc->loadHTML($text);
 
+    
+  
+    $text .= "src=\"www.google.com\searh\img.png\n";
+    $text.= " src=\"www.google.com\searh\img.png\n";
+    // the callback function
 
-    $text_new = str_replace('href="', 'href="' . pg . '/', $text);
-    $text_new = str_replace('src="', 'src="' . pg . '/', $text_new);
-    $text_new = str_replace( pg . "/http" ,  "http",  $text_new);
 
-    $pag_action = fopen($pagina, 'w+' ); //abre o arquivo e deixa em branco
-    fwrite($pag_action, $text_new);
-    fclose(fopen($pagina, 'r+'));
+    function alterar($matches)
+    {
+      // as usual: $matches[0] is the complete match
+      // $matches[1] the match for the first subpattern
+      // enclosed in '(...)' and so on
+      // espaço + 3 letras (src) + doi pontos (:) + aspa (")
+      echo $matches[0];
+      return $matches[0]."www.google.com/";
 
-    echo "<h1>Código Novo</h1>";
-    var_dump($text_new);
-    echo '<br>----------------------------------------------<br>';
-    echo "<h1>Código Antigo</h1>";
-    var_dump($text);
+    }
+    /* echo preg_replace_callback(
+                "|(\d{2}/\d{2}/)(\d{4})|",
+                "alterar",
+                $text);
+   
+         */
+    echo preg_replace_callback(
+              //  "|(\w{3}=\")([^\w{3}.])|",
+                "|(\w{2}=\")([\w{2}.])|",
+                "alterar",
+                $text);
 
-    return 0;
-
+    
+    
 }
+
+
+
+
 
 atualizar_paths('pagina.html');
 
