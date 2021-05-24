@@ -2,65 +2,30 @@
 
 function atualizar_paths($pagina){
 
-     $url_host = filter_input(INPUT_SERVER, 'HTTP_HOST');
+    $url_host = filter_input(INPUT_SERVER, 'HTTP_HOST');
     define('pg', 'http://'.$url_host.'/RelativoToAbsolutePath');
 
-
-
     $text = file_get_contents(pg . '/'. $pagina);
-    $doc = new DOMDocument('1.0');
-    $doc->loadHTML($text);
-
     
-  
-    $text .= "src=\"img.png\"\n";
-    $text.= " src=\"www.google.com\searh\img.png\n";
-    // the callback function
-
-
     function alterar($matches)
-    {
-        $input = "aqui"
-      // as usual: $matches[0] is the complete match
-      // $matches[1] the match for the first subpattern
-      // enclosed in '(...)' and so on
-      // espaço + 3 letras (src) + doi pontos (:) + aspa (")
-      echo "Resultados encontrados: " . $matches[0] . "<br>";
-      return   $matches[0] . $input;
-
+    {     
+      //return preg_replace("/=\"/","=\" ".pg . "/", "".$matches[0]);
+      return $matches[0] . pg . "/";
     }
-    /* echo preg_replace_callback(
-                "|(\d{2}/\d{2}/)(\d{4})|",
-                "alterar",
-                $text);
-   
-         */
-    $string =  preg_replace_callback(
-             
-                //"|(\w{3}=\")(www\.)|",
-                "|(src=\")|",
+    
+    //((src=")(?!http)(?!www))((href=")(?!http)(?!www))
+    $new_text =  preg_replace_callback(
+      '/((src=")(?!http)(?!www))|((href=")(?!http)(?!www))/',
                 "alterar",
                 $text);
 
-    $string =  preg_replace_callback(
-             
-                    //"|(\w{3}=\")(www\.)|",
-                    "|(href=\")|",
-                    "alterar",
-                    $text);
-
-                    $string =  preg_replace_callback(
-             
-                        //"|(\w{3}=\")(www\.)|",
-                        "|(href=\"".$input.".)|",
-                        "alterar",
-                        $text);                
-                    
-
-    
-    
+    $pag_action = fopen($pagina, 'w+' ); //abre o arquivo e deixa em branco
+    fwrite($pag_action, $new_text);
+    fclose(fopen($pagina, 'r+'));
+              
+    //var_dump($new_text) ;   
+    echo "arquivo corrigido com sucesso";
 }
-
 
 
 
